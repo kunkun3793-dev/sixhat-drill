@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>シックスハット ドリル</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Shippori+Mincho:wght@400;600&display=swap');
+
+:root {
+  --bg:#f6f4f0; --white:#fff; --ink:#1a1a1a; --ink2:#555; --ink3:#999;
+  --border:#e2ddd6; --border2:#c8c2b8;
+  --morning:#c8820a; --evening:#3a4e8c;
+  --hr:#d44444; --hrb:#fdecea;
+  --hw:#3a7bd5; --hwb:#eaf1fb;
+  --hb:#333;    --hbb:#efefef;
+  --hy:#c8920a; --hyb:#fdf5e0;
+  --hg:#2e9e68; --hgb:#eaf7f0;
+  --hp:#6b5fc0; --hpb:#f0eef8;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;}
+.app{max-width:480px;margin:0 auto;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* SHARED */
+.top-bar{padding:12px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:10;}
+.btn-back{width:36px;height:36px;border-radius:50%;background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;}
+.btn-back:active{transform:scale(.92);}
+.top-label{font-size:13px;font-weight:500;flex:1;}
+.top-badge{padding:4px 12px;border-radius:20px;font-size:10px;font-weight:500;color:var(--white);}
+.fixed-footer{position:fixed;bottom:0;left:0;right:0;padding:12px 18px;background:var(--bg);border-top:1px solid var(--border);max-width:480px;margin:0 auto;}
+.fixed-footer2{position:fixed;bottom:0;left:0;right:0;padding:12px 18px;background:var(--bg);border-top:1px solid var(--border);max-width:480px;margin:0 auto;display:flex;gap:8px;}
+.fixed-footer2 .btn{flex:1;}
+.btn{padding:14px;border:none;border-radius:12px;font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s;letter-spacing:.04em;}
+.btn:active{transform:scale(.98);opacity:.9;}
+.btn-ink{background:var(--ink);color:#fff;}
+.btn-ghost{background:var(--white);color:var(--ink2);border:1px solid var(--border);}
+.btn-morning{background:var(--morning);color:#fff;}
+.btn-evening{background:var(--evening);color:#fff;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fu .3s ease;}
+
+/* ===== HOME ===== */
+#home{padding:0 0 20px;}
+.hero{background:linear-gradient(135deg,#f9e8ec,#fde8f0);padding:44px 22px 32px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(200,100,120,.06);}
+.hero-eye{font-size:9px;letter-spacing:.22em;color:#c07080;text-transform:uppercase;margin-bottom:12px;}
+.hero-title{font-family:'Shippori Mincho',serif;font-size:28px;font-weight:600;color:#6a2030;line-height:1.3;margin-bottom:8px;}
+.hero-lead{font-size:12px;color:#a06070;line-height:1.9;}
+.home-body{padding:20px;}
+
+/* TODAY STATUS */
+.today-row{display:flex;gap:8px;margin-bottom:18px;}
+.today-item{flex:1;background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.today-item.done-m{background:#fff8ee;border-color:#ecc060;}
+.today-item.done-e{background:#eef0fb;border-color:#a0b0d8;}
+.ti-icon{font-size:20px;display:block;margin-bottom:4px;}
+.ti-label{font-size:11px;color:var(--ink3);}
+.ti-label.m{color:var(--morning);}
+.ti-label.e{color:var(--evening);}
+
+/* HAT GUIDE */
+.hat-guide{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:18px;}
+.hg-ttl{font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:12px;}
+.hg-list{display:grid;gap:8px;}
+.hg-row{display:flex;align-items:flex-start;gap:10px;}
+.hg-ball{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:1px;}
+.hg-name{font-size:12px;font-weight:500;color:var(--ink);}
+.hg-desc{font-size:11px;color:var(--ink3);line-height:1.5;margin-top:1px;}
+.hg-kw{display:inline-block;padding:1px 7px;border-radius:4px;font-size:10px;font-weight:500;color:#fff;margin-top:3px;}
+
+/* MODE CARDS */
+.mode-cards{display:grid;gap:10px;margin-bottom:16px;}
+.mc{border-radius:12px;padding:18px 20px;cursor:pointer;transition:all .18s;border:1.5px solid transparent;display:flex;align-items:center;gap:14px;}
+.mc:active{transform:scale(.98);}
+.mc-m{background:linear-gradient(135deg,#fff8ee,#fff2d0);border-color:#ecc060;}
+.mc-e{background:linear-gradient(135deg,#eef0fb,#e2e8f6);border-color:#a0b0d8;}
+.mc-icon{font-size:26px;flex-shrink:0;}
+.mc-info{flex:1;}
+.mc-title{font-size:16px;font-weight:500;margin-bottom:3px;}
+.mc-title.m{color:var(--morning);}
+.mc-title.e{color:var(--evening);}
+.mc-desc{font-size:11px;color:var(--ink3);line-height:1.6;}
+.mc-arr{font-size:18px;color:var(--ink3);}
+
+.records-btn{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .18s;}
+.records-btn:active{transform:scale(.98);background:var(--bg);}
+.rb-icon{font-size:18px;}
+.rb-text{flex:1;font-size:13px;color:var(--ink2);}
+.rb-arr{font-size:13px;color:var(--ink3);}
+
+/* ===== TOPIC INPUT ===== */
+#topicInput{padding:0 0 80px;}
+.topic-body{padding:18px;}
+.topic-intro{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--ink2);line-height:1.8;}
+.topic-intro strong{color:var(--ink);}
+
+.topic-new{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.tn-head{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg);font-size:10px;color:var(--ink3);letter-spacing:.1em;}
+.tn-input{width:100%;border:none;outline:none;padding:12px 14px;font-family:'Noto Sans JP',sans-serif;font-size:14px;color:var(--ink);background:transparent;}
+.tn-input::placeholder{color:#bbb;}
+.tn-add-btn{width:100%;padding:12px;border:none;border-top:1px solid var(--border);background:var(--bg);font-family:'Noto Sans JP',sans-serif;font-size:12px;color:var(--ink2);cursor:pointer;transition:all .18s;text-align:center;}
+.tn-add-btn:active{background:var(--border);}
+
+.saved-topics{display:grid;gap:8px;margin-bottom:16px;}
+.st-label{font-size:10px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:8px;}
+.st-item{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .18s;}
+.st-item:active{transform:scale(.98);background:var(--bg);}
+.st-num{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.st-text{flex:1;font-size:13px;color:var(--ink);}
+.st-del{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;font-size:11px;color:var(--ink3);cursor:pointer;}
+.st-del:active{background:var(--border);}
+.st-arr{font-size:14px;color:var(--ink3);}
+.st-morning-badge{font-size:10px;color:var(--morning);background:#fff8ee;padding:2px 7px;border-radius:5px;border:1px solid #ecc060;}
+
+.no-topics{text-align:center;padding:24px;color:var(--ink3);font-size:13px;}
+
+/* ===== DRILL ===== */
+#drill{padding:0 0 100px;}
+.drill-body{padding:16px 18px;}
+
+.mode-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:14px;font-size:12px;font-weight:500;}
+.mb-m{background:#fff3d6;color:var(--morning);}
+.mb-e{background:#dde3f4;color:var(--evening);}
+.sw-btn{padding:5px 10px;border-radius:6px;border:none;font-family:'Noto Sans JP',sans-serif;font-size:11px;font-weight:500;cursor:pointer;}
+.sw-btn-m{background:var(--evening);color:#fff;}
+.sw-btn-e{background:var(--morning);color:#fff;}
+
+.topic-banner{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:14px;}
+.tb-label{font-size:10px;color:var(--ink3);letter-spacing:.1em;margin-bottom:4px;}
+.tb-text{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:600;color:var(--ink);}
+
+.hat-fields{display:grid;gap:10px;margin-bottom:14px;}
+.hf{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.hf-top{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.hf-ball{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.hf-meta{flex:1;}
+.hf-name{font-size:12px;font-weight:500;color:var(--ink);}
+.hf-sub{font-size:10px;color:var(--ink3);margin-top:1px;}
+.hf-q{padding:7px 13px;border-bottom:1px solid var(--border);font-size:11px;color:var(--ink3);line-height:1.6;background:#fafaf8;}
+.hf-q::before{content:'→ ';}
+.morning-ref{padding:8px 13px;border-bottom:1px solid var(--border);background:#fffbf0;}
+.mref-lbl{font-size:9px;letter-spacing:.1em;color:#9a6800;margin-bottom:3px;}
+.mref-txt{font-size:12px;color:#6a4800;line-height:1.7;white-space:pre-wrap;}
+.mref-none{font-size:11px;color:#ccc;font-style:italic;}
+.hf-ta{width:100%;min-height:68px;background:transparent;border:none;outline:none;padding:11px 13px;font-family:'Noto Sans JP',sans-serif;font-size:13px;line-height:1.8;color:var(--ink);resize:none;}
+.hf-ta::placeholder{color:#ccc;}
+.hf-ta:focus{background:#fefefe;}
+
+/* ===== DONE ===== */
+#done{padding:0 0 100px;}
+.done-body{padding:16px 18px;}
+.result-card{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.rc-head{padding:10px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:500;letter-spacing:.06em;}
+.rc-head-m{background:#fff8ee;color:#9a6800;}
+.rc-head-e{background:#eef0fb;color:#3a4e8c;}
+.rc-head-cmp{background:#f5f0ff;color:#5a3a9e;}
+.rc-rows{padding:12px 16px;display:grid;gap:10px;}
+.rc-row{display:flex;gap:10px;}
+.rc-ball{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px;}
+.rc-content{flex:1;}
+.rc-hat{font-size:10px;color:var(--ink3);margin-bottom:2px;}
+.rc-text{font-size:13px;color:var(--ink);line-height:1.7;white-space:pre-wrap;}
+.rc-empty{color:#ccc;font-style:italic;}
+.cmp-section{display:grid;gap:6px;}
+.cmp-hat-hd{display:flex;align-items:center;gap:8px;}
+.cmp-gap-tag{padding:2px 7px;border-radius:4px;background:#fff0cc;color:#9a6800;font-size:10px;font-weight:500;}
+.cmp-pair{padding-left:32px;display:grid;gap:4px;}
+.cmp-half{border-radius:7px;padding:7px 10px;}
+.cm{background:#fff8ee;}
+.ce{background:#eef0fb;}
+.ch-lbl{font-size:9px;letter-spacing:.1em;margin-bottom:3px;}
+.cm .ch-lbl{color:#9a6800;}
+.ce .ch-lbl{color:#3a4e8c;}
+.ch-txt{font-size:12px;line-height:1.7;white-space:pre-wrap;}
+.cm .ch-txt{color:#6a4800;}
+.ce .ch-txt{color:#2a3a6c;}
+.ch-none{color:#ccc;font-style:italic;}
+
+.memo-block{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.memo-lbl{padding:9px 14px;border-bottom:1px solid var(--border);background:var(--bg);font-size:11px;color:var(--ink3);letter-spacing:.08em;}
+.memo-ta{width:100%;min-height:80px;background:transparent;border:none;outline:none;padding:12px 14px;font-family:'Noto Sans JP',sans-serif;font-size:13px;line-height:1.8;color:var(--ink);resize:none;}
+.memo-ta::placeholder{color:#bbb;}
+.morning-saved{background:#fff8ee;border:1px solid #ecc060;border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:12px;color:#9a6800;line-height:1.8;}
+.btn-to-e{margin-top:8px;padding:8px 14px;border-radius:7px;border:none;background:var(--evening);color:#fff;font-family:'Noto Sans JP',sans-serif;font-size:12px;cursor:pointer;font-weight:500;}
+
+/* ===== RECORDS ===== */
+#records{padding:0 0 40px;}
+.rec-body{padding:16px 18px;}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.stat-box{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center;}
+.stat-n{font-size:26px;font-weight:700;background:linear-gradient(135deg,var(--morning),var(--evening));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.stat-l{font-size:10px;color:var(--ink3);margin-top:2px;}
+
+/* GRAPH */
+.graph-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.graph-ttl{font-family:'Shippori Mincho',serif;font-size:16px;font-weight:600;margin-bottom:4px;}
+.graph-sub{font-size:11px;color:var(--ink3);margin-bottom:14px;}
+.bar-rows{display:grid;gap:11px;}
+.bar-row{display:grid;gap:4px;}
+.bar-hd{display:flex;align-items:center;gap:8px;}
+.bar-ball{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.bar-nm{font-size:12px;font-weight:500;color:var(--ink);}
+.bar-cnt{font-size:11px;color:var(--ink3);margin-left:auto;}
+.bar-bg{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.bar-tags{display:flex;gap:5px;margin-top:2px;}
+.btag{padding:2px 7px;border-radius:4px;font-size:10px;}
+.btag-strong{background:#edfaf4;color:#2d6e4a;}
+.btag-weak{background:#fdecea;color:#9e2a2a;}
+.btag-n{background:var(--bg);color:var(--ink3);}
+
+/* ADVICE */
+.advice-card{background:var(--ink);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+.adv-lbl{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.1em;margin-bottom:8px;}
+.adv-txt{font-size:13px;color:#fff;line-height:1.85;}
+
+/* HISTORY */
+.hist-section{margin-bottom:16px;}
+.hist-ttl{font-size:10px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:10px;}
+.hist-list{display:grid;gap:8px;}
+.hist-item{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .18s;}
+.hist-item:active{transform:scale(.98);}
+.hi-head{padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.hi-date{font-size:11px;color:var(--ink3);}
+.hi-topic{font-size:12px;font-weight:500;color:var(--ink);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.hi-mode{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:500;}
+.hi-m{background:#fff3d6;color:var(--morning);}
+.hi-e{background:#dde3f4;color:var(--evening);}
+.hi-gap{padding:2px 7px;border-radius:4px;background:#fff0cc;color:#9a6800;font-size:10px;}
+.hi-preview{padding:9px 14px;display:grid;gap:3px;}
+.hi-pline{display:flex;gap:6px;align-items:flex-start;}
+.hi-pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px;}
+.hi-ptxt{font-size:11px;color:var(--ink2);line-height:1.5;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+.hist-empty{text-align:center;padding:32px;color:var(--ink3);font-size:13px;}
+
+/* ===== TALK ===== */
+.talk-pattern-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;}
+.tpt{padding:8px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--white);font-family:'Noto Sans JP',sans-serif;font-size:12px;font-weight:500;color:var(--ink3);cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.tpt.active{background:#c84080;border-color:#c84080;color:#fff;}
+.talk-intro{background:#fdf0f5;border:1px solid #f0c0d0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#8a3050;line-height:1.8;}
+.talk-steps{display:grid;gap:10px;margin-bottom:14px;}
+.ts-item{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ts-head{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg);}
+.ts-step{width:20px;height:20px;border-radius:50%;background:#c84080;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.ts-hat-ball{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;}
+.ts-hat-name{font-size:11px;font-weight:500;color:var(--ink);}
+.ts-template{padding:8px 14px;border-bottom:1px solid var(--border);background:#fff8f0;font-size:11px;color:#9a5020;line-height:1.6;font-style:italic;}
+.ts-content{padding:10px 14px;font-size:13px;color:var(--ink);line-height:1.7;white-space:pre-wrap;}
+.ts-empty{color:#ccc;font-style:italic;}
+.talk-script{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.tscript-head{padding:10px 14px;border-bottom:1px solid var(--border);background:#fdf0f5;font-size:11px;font-weight:500;color:#8a3050;letter-spacing:.06em;}
+.tscript-body{padding:14px;font-size:13px;color:var(--ink);line-height:2;white-space:pre-line;}
+.tscript-line{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
+.tscript-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:8px;}
+.tscript-txt{flex:1;font-size:13px;color:var(--ink);line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ===== HOME ===== -->
+<div id="home" class="screen active">
+  <div class="hero">
+    <div class="hero-eye">SIX THINKING HATS</div>
+    <div class="hero-title">シックスハット法<br>思考の整理</div>
+    <div class="hero-lead">頭の中のモヤモヤを6つの帽子で整理する。<br>朝に設計し、夜に検証する。毎日10分。</div>
+  </div>
+  <div class="home-body">
+
+    <!-- HAT GUIDE -->
+    <div class="hat-guide">
+      <div class="hg-ttl">6つの帽子の意味</div>
+      <div class="hg-list">
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hwb)">⚪</div><div><div class="hg-name">白　論理的思考・客観思考</div><div class="hg-desc">事実・データだけを見る。感情・意見を入れない。</div><div class="hg-kw" style="background:var(--hw)">事実</div></div></div>
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hrb)">🔴</div><div><div class="hg-name">赤　感情思考・直感思考</div><div class="hg-desc">理由なしで感じたこと・本音をそのまま出す。</div><div class="hg-kw" style="background:var(--hr)">気持ち</div></div></div>
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hbb)">⚫</div><div><div class="hg-name">黒　批判的思考・リスク思考</div><div class="hg-desc">うまくいかない可能性・不安・問題点を先に見る。</div><div class="hg-kw" style="background:var(--hb)">不安</div></div></div>
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hyb)">🟡</div><div><div class="hg-name">黄　肯定的思考・ポジティブ思考</div><div class="hg-desc">うまくいく理由・良い面・チャンスを見る。</div><div class="hg-kw" style="background:var(--hy)">可能性</div></div></div>
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hgb)">🟢</div><div><div class="hg-name">緑　水平思考・創造的思考</div><div class="hg-desc">別のアプローチ・新しいアイデアを考える。</div><div class="hg-kw" style="background:var(--hg)">アイデア</div></div></div>
+        <div class="hg-row"><div class="hg-ball" style="background:var(--hpb)">🔵</div><div><div class="hg-name">青　メタ思考・統括思考</div><div class="hg-desc">全体を見て、次の一手・決断をまとめる。</div><div class="hg-kw" style="background:var(--hp)">まとめ・決断</div></div></div>
+      </div>
+    </div>
+
+    <!-- MODE CARDS -->
+    <div class="mode-cards">
+      <div class="mc mc-m" onclick="goTopicInput('morning')">
+        <div class="mc-icon">🌅</div>
+        <div class="mc-info">
+          <div class="mc-title m">朝モード</div>
+          <div class="mc-desc">今日どう動くかを6つの帽子で組み立てる</div>
+        </div>
+        <div class="mc-arr">→</div>
+      </div>
+      <div class="mc mc-e" onclick="goTopicInput('evening')">
+        <div class="mc-icon">🌙</div>
+        <div class="mc-info">
+          <div class="mc-title e">夜モード</div>
+          <div class="mc-desc">今日起きたことを6つの帽子で振り返る</div>
+        </div>
+        <div class="mc-arr">→</div>
+      </div>
+    </div>
+
+    <div class="records-btn" onclick="goRecords()">
+      <div class="rb-icon">📊</div>
+      <div class="rb-text">記録・成長グラフを見る</div>
+      <div class="rb-arr">→</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== TOPIC INPUT ===== -->
+<div id="topicInput" class="screen">
+  <div class="top-bar">
+    <div class="btn-back" onclick="show('home');renderHome()">←</div>
+    <div class="top-label" id="tiLabel"></div>
+    <div class="top-badge" id="tiBadge"></div>
+  </div>
+  <div class="topic-body">
+
+    <!-- 場面選択 -->
+    <div style="font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:10px">場面を選ぶ</div>
+    <div id="sceneSelectArea" style="display:grid;gap:8px;margin-bottom:20px"></div>
+
+    <!-- テーマ入力 -->
+    <div style="font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;margin-bottom:10px">テーマを入力</div>
+    <div class="topic-new">
+      <div class="tn-head">▸ 今日のテーマ</div>
+      <input class="tn-input" id="topicNewInput" placeholder="例：〇〇さんとの商談 / 断られた理由を考える" type="text">
+      <button class="tn-add-btn" onclick="addTopic()">＋ このテーマで始める</button>
+    </div>
+
+    <!-- 保存済みテーマ -->
+    <div id="savedTopicsArea"></div>
+  </div>
+</div>
+
+<!-- ===== DRILL ===== -->
+<div id="drill" class="screen">
+  <div class="top-bar">
+    <div class="btn-back" id="drillBack">←</div>
+    <div class="top-label" id="drillLabel"></div>
+    <div class="top-badge" id="drillBadge"></div>
+  </div>
+  <div class="drill-body">
+    <div class="mode-bar" id="modeBar">
+      <span id="modeText"></span>
+      <button class="sw-btn" id="swBtn" onclick="switchMode()"></button>
+    </div>
+    <div class="topic-banner">
+      <div class="tb-label">▸ 今日のテーマ</div>
+      <div class="tb-text" id="topicBannerText"></div>
+    </div>
+    <div class="hat-fields" id="hatFields"></div>
+  </div>
+  <div class="fixed-footer">
+    <button class="btn btn-ink" style="width:100%" onclick="finishDrill()">完了して振り返る →</button>
+  </div>
+</div>
+
+<!-- ===== DONE ===== -->
+<div id="done" class="screen">
+  <div class="top-bar">
+    <div class="btn-back" onclick="show('home');renderHome()">←</div>
+    <div class="top-label">振り返り</div>
+  </div>
+  <div class="done-body" id="doneBody"></div>
+  <div class="fixed-footer2">
+    <button class="btn btn-ghost" onclick="retryDrill()">← 書き直す</button>
+    <button class="btn" style="flex:1;background:#c84080;color:#fff" onclick="goTalk()">話すセリフへ →</button>
+    <button class="btn btn-ink" onclick="show('home');renderHome()">完了</button>
+  </div>
+</div>
+
+<!-- ===== TALK ===== -->
+<div id="talk" class="screen">
+  <div class="top-bar">
+    <div class="btn-back" id="talkBack">←</div>
+    <div class="top-label">話すセリフを組み立てる</div>
+    <div class="top-badge" style="background:#c84080">TALK</div>
+  </div>
+  <div id="talkBody" style="padding:16px 18px 100px"></div>
+  <div class="fixed-footer2">
+    <button class="btn btn-ghost" onclick="show('done')">← 振り返りへ</button>
+    <button class="btn btn-ink" onclick="show('home');renderHome()">ホームへ →</button>
+  </div>
+</div>
+
+<!-- ===== RECORDS ===== -->
+<div id="records" class="screen">
+  <div class="top-bar">
+    <div class="btn-back" onclick="show('home');renderHome()">←</div>
+    <div class="top-label">記録・成長グラフ</div>
+  </div>
+  <div class="rec-body" id="recBody"></div>
+</div>
+
+</div>
+<script>
+// ===== SCENES =====
+const SCENES = [
+  {
+    id:'sales', icon:'💼', label:'仕事・営業',
+    color:'#c8820a', bg:'#fff8ee',
+    desc:'商談・提案・アプローチ',
+    questions:{
+      w:{mq:'相手の現状・条件を事実だけで整理すると？', eq:'事実ベースで何が起きたか？'},
+      r:{mq:'相手はどんな感情・状態にあると感じるか？', eq:'自分は今日どう感じたか？'},
+      b:{mq:'断られるリスク・障害はどこにあるか？', eq:'どこに問題・ズレがあったか？'},
+      y:{mq:'相手にとってのメリット・価値は何か？', eq:'うまくいっていた点は何か？'},
+      g:{mq:'別の伝え方・アプローチはあるか？', eq:'次に試せる方法は何か？'},
+      p:{mq:'今日のゴールは何か？次の一手は？', eq:'全体として何がズレていたか？'},
+    },
+    talkIntro:'相手の感情を先に受け取り、不安を言葉にしてからメリットを渡す。押さなくても決まる流れ。',
+    talkSteps:[
+      {hatId:'r', order:1, template:'「〇〇でお悩みなんですね」\n→ 相手の感情を先に受け取る'},
+      {hatId:'w', order:2, template:'「現状〇〇という状況ですよね」\n→ 事実を一緒に確認する'},
+      {hatId:'b', order:3, template:'「このままだと〇〇のリスクがあります」\n→ 不安を先に言葉にしてあげる'},
+      {hatId:'y', order:4, template:'「だからこそ〇〇が効きます」\n→ 相手のメリットを渡す'},
+      {hatId:'p', order:5, template:'「まず〇〇から試しませんか？」\n→ 小さな次の一手を提案する'},
+    ],
+    talkRef:[
+      '「今、〇〇についてお悩みなんですよね。（赤）」',
+      '「現状を整理すると、〇〇という状況ですね。（白）」',
+      '「このまま放置すると、〇〇というリスクがあります。（黒）」',
+      '「だからこそ、〇〇というメリットがあります。（黄）」',
+      '「まず〇〇から始めてみませんか？（青）」',
+    ]
+  },
+  {
+    id:'counsel', icon:'🤝', label:'カウンセリング',
+    color:'#2e9e68', bg:'#eaf7f0',
+    desc:'相談・ヒアリング・サポート',
+    questions:{
+      w:{mq:'お客様の現状・状況・条件はどうか？', eq:'お客様に何が起きていたか？'},
+      r:{mq:'お客様の本当の不安・感情は何か？', eq:'お客様はどう感じていたか？'},
+      b:{mq:'どこで躊躇・不安が生まれそうか？', eq:'どこでズレ・迷いが起きたか？'},
+      y:{mq:'どこで信頼が生まれるか？可能性は？', eq:'うまくいっていた場面は？'},
+      g:{mq:'他にどんな関わり方・提案ができるか？', eq:'次にどんな対応ができるか？'},
+      p:{mq:'今日のゴール・決断をサポートする一手は？', eq:'全体の改善点は何か？'},
+    },
+    talkIntro:'感情を受け取り、不安の正体を一緒に言葉にする。相手が自分で決められる状態を作る。',
+    talkSteps:[
+      {hatId:'r', order:1, template:'「〇〇が心配なんですね」\n→ 感情をそのまま受け取る'},
+      {hatId:'w', order:2, template:'「今の状況を整理すると〇〇ですね」\n→ 事実を並べて整理する'},
+      {hatId:'b', order:3, template:'「一番気になっているのは〇〇ですか？」\n→ 不安の正体を言葉にする'},
+      {hatId:'y', order:4, template:'「でも〇〇という可能性もあります」\n→ 前向きな視点を渡す'},
+      {hatId:'p', order:5, template:'「では今日は〇〇を決めましょう」\n→ 決断をサポートする'},
+    ],
+    talkRef:[
+      '「〇〇が心配なんですね、よくわかります。（赤）」',
+      '「今の状況を整理すると、〇〇ですね。（白）」',
+      '「一番引っかかっているのは、〇〇ですか？（黒）」',
+      '「でも、〇〇という見方もできますよ。（黄）」',
+      '「では今日は、〇〇を一つ決めましょう。（青）」',
+    ]
+  },
+  {
+    id:'closing', icon:'🎯', label:'クロージング',
+    color:'#6b5fc0', bg:'#f0eef8',
+    desc:'決断・契約・最終提案',
+    questions:{
+      w:{mq:'相手が決断できていない事実・条件は何か？', eq:'今日の商談で何が起きたか？'},
+      r:{mq:'相手はどこで迷っていると感じるか？', eq:'自分はどう感じていたか？'},
+      b:{mq:'決断を妨げているリスク・懸念は何か？', eq:'何が障害になっていたか？'},
+      y:{mq:'今決断することのメリット・価値は何か？', eq:'相手にとっての良かった点は？'},
+      g:{mq:'別のクロージングの方法はあるか？', eq:'次のアプローチはあるか？'},
+      p:{mq:'今日の着地点・次の約束は何にするか？', eq:'次の行動は何か？'},
+    },
+    talkIntro:'迷いの正体を言葉にしてあげる。「今決める基準」を一緒に作ることで自然に決断できる。',
+    talkSteps:[
+      {hatId:'r', order:1, template:'「〇〇が気になっているんですね」\n→ 迷いの感情を受け取る'},
+      {hatId:'w', order:2, template:'「今の条件を整理すると〇〇ですね」\n→ 事実を確認する'},
+      {hatId:'b', order:3, template:'「一番引っかかっているのは〇〇ですか？」\n→ 決断を妨げているものを言葉にする'},
+      {hatId:'y', order:4, template:'「今決めると〇〇というメリットがあります」\n→ 今動く価値を渡す'},
+      {hatId:'p', order:5, template:'「〇〇ならやる、〇〇ならやめる、どちらですか？」\n→ 基準を一緒に作って決断させる'},
+    ],
+    talkRef:[
+      '「〇〇が気になっているんですね。（赤）」',
+      '「今の状況を整理すると、〇〇ですね。（白）」',
+      '「一番引っかかっているのは〇〇ですか？（黒）」',
+      '「今動くと、〇〇というメリットがあります。（黄）」',
+      '「〇〇ならやる、〇〇ならやめる。どちらですか？（青）」',
+    ]
+  },
+];
+
+// ===== HATS =====
+const HATS=[
+  {id:'w',e:'⚪',name:'白　論理的思考・客観思考',color:'#3a7bd5',bg:'#eaf1fb'},
+  {id:'r',e:'🔴',name:'赤　感情思考・直感思考',color:'#d44444',bg:'#fdecea'},
+  {id:'b',e:'⚫',name:'黒　批判的思考・リスク思考',color:'#333',bg:'#efefef'},
+  {id:'y',e:'🟡',name:'黄　肯定的思考・ポジティブ思考',color:'#c8920a',bg:'#fdf5e0'},
+  {id:'g',e:'🟢',name:'緑　水平思考・創造的思考',color:'#2e9e68',bg:'#eaf7f0'},
+  {id:'p',e:'🔵',name:'青　メタ思考・統括思考',color:'#6b5fc0',bg:'#f0eef8'},
+];
+
+// ===== STATE =====
+let mode='morning', topic='', answers={}, scene='sales';
+
+// ===== STORAGE =====
+function todayKey(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
+function todayLabel(){return new Date().toLocaleDateString('ja-JP',{month:'long',day:'numeric'});}
+function getSavedTopics(){try{return JSON.parse(localStorage.getItem('sh_topics')||'[]');}catch{return[];}}
+function setSavedTopics(arr){localStorage.setItem('sh_topics',JSON.stringify(arr));}
+function topicKey(t){return 'sh_m_'+btoa(encodeURIComponent(t)).replace(/[^a-z0-9]/gi,'')+'_'+todayKey();}
+function saveMorning(t,ans,sc){
+  localStorage.setItem(topicKey(t),JSON.stringify({ans,topic:t,scene:sc}));
+}
+function loadMorning(t){
+  try{const raw=localStorage.getItem(topicKey(t));return raw?JSON.parse(raw):null;}catch{return null;}
+}
+function saveRecord(r){const all=getRecords();all.unshift(r);if(all.length>200)all.splice(200);localStorage.setItem('sh_records',JSON.stringify(all));}
+function getRecords(){try{return JSON.parse(localStorage.getItem('sh_records')||'[]');}catch{return[];}}
+
+// ===== NAV =====
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
+// ===== HOME =====
+function renderHome(){}
+
+// ===== TOPIC INPUT =====
+function goTopicInput(m){
+  mode=m;
+  show('topicInput');
+  const isM=m==='morning';
+  document.getElementById('tiLabel').textContent=isM?'朝モード　―　場面とテーマ':'夜モード　―　場面とテーマ';
+  const badge=document.getElementById('tiBadge');
+  badge.textContent=isM?'設計':'振り返り';
+  badge.style.background=isM?'var(--morning)':'var(--evening)';
+  document.getElementById('topicNewInput').value='';
+  renderSceneSelect();
+  renderSavedTopics();
+}
+
+function renderSceneSelect(){
+  const c=document.getElementById('sceneSelectArea');
+  c.innerHTML=SCENES.map(sc=>`
+    <div onclick="selectScene('${sc.id}')"
+      style="background:${scene===sc.id?sc.bg:'var(--white)'};
+             border:1.5px solid ${scene===sc.id?sc.color:'var(--border)'};
+             border-radius:10px;padding:13px 16px;
+             display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s">
+      <div style="font-size:22px;flex-shrink:0">${sc.icon}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:${scene===sc.id?sc.color:'var(--ink)'}">${sc.label}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:1px">${sc.desc}</div>
+      </div>
+      <div style="width:18px;height:18px;border-radius:50%;
+                  background:${scene===sc.id?sc.color:'var(--border)'};
+                  display:flex;align-items:center;justify-content:center;
+                  font-size:10px;color:#fff;flex-shrink:0">
+        ${scene===sc.id?'✓':''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectScene(id){
+  scene=id;
+  renderSceneSelect();
+}
+
+function renderSavedTopics(){
+  const saved=getSavedTopics();
+  const area=document.getElementById('savedTopicsArea');
+  if(!saved.length){
+    area.innerHTML='<div class="no-topics" style="margin-top:12px">保存済みのテーマはありません。<br>上から入力して始めてください。</div>';
+    return;
+  }
+  let h=`<div class="st-label" style="margin-top:16px">保存済みのテーマ（タップで使う）</div><div class="saved-topics">`;
+  saved.forEach((t,i)=>{
+    const hasMorning=mode==='evening'&&!!loadMorning(t);
+    h+=`<div class="st-item">
+      <div class="st-num">${i+1}</div>
+      <div class="st-text" onclick="useTopic('${encodeURIComponent(t)}')">${t}${hasMorning?` <span class="st-morning-badge">🌅朝あり</span>`:''}</div>
+      <button class="st-del" onclick="deleteTopic(${i},event)">削除</button>
+      <div class="st-arr" onclick="useTopic('${encodeURIComponent(t)}')">→</div>
+    </div>`;
+  });
+  h+='</div>';
+  area.innerHTML=h;
+}
+
+function addTopic(){
+  const val=document.getElementById('topicNewInput').value.trim();
+  if(!val) return;
+  const saved=getSavedTopics();
+  if(saved.length>=5){
+    if(!confirm('テーマは5件まで保存できます。\n古いものを削除して追加しますか？')) return;
+    saved.pop();
+  }
+  if(!saved.includes(val)) saved.unshift(val);
+  setSavedTopics(saved);
+  startDrill(val);
+}
+
+function useTopic(encoded){
+  startDrill(decodeURIComponent(encoded));
+}
+
+function deleteTopic(i,e){
+  if(e) e.stopPropagation();
+  const saved=getSavedTopics();
+  saved.splice(i,1);
+  setSavedTopics(saved);
+  renderSavedTopics();
+}
+
+// ===== DRILL =====
+function startDrill(t, keep){
+  topic=t;
+  if(!keep) answers={};
+  show('drill');
+  const isM=mode==='morning';
+  document.getElementById('drillLabel').textContent=isM?'朝モード　設計':'夜モード　振り返り';
+  const badge=document.getElementById('drillBadge');
+  badge.textContent='6 HAT';
+  badge.style.background=isM?'var(--morning)':'var(--evening)';
+  document.getElementById('topicBannerText').textContent=topic;
+  const bar=document.getElementById('modeBar');
+  bar.className='mode-bar '+(isM?'mb-m':'mb-e');
+  document.getElementById('modeText').textContent=isM?'🌅 朝モード　―　今日を設計する':'🌙 夜モード　―　今日を振り返る';
+  const sw=document.getElementById('swBtn');
+  sw.textContent=isM?'夜モードへ':'朝モードへ';
+  sw.className='sw-btn '+(isM?'sw-btn-m':'sw-btn-e');
+  document.getElementById('drillBack').onclick=()=>{
+    const any=Object.values(answers).some(v=>v&&v.trim());
+    if(any){if(confirm('テーマ選択に戻りますか？\n書いた内容は保持されます。')){goTopicInput(mode);}}
+    else{goTopicInput(mode);}
+  };
+  renderFields();
+}
+
+function switchMode(){
+  const nm=mode==='morning'?'evening':'morning';
+  if(confirm((nm==='morning'?'朝':'夜')+'モードに切り替えますか？\n書いた内容はリセットされます。')){
+    mode=nm;
+    startDrill(topic,false);
+  }
+}
+
+function renderFields(){
+  const c=document.getElementById('hatFields');
+  c.innerHTML='';
+  const isE=mode==='evening';
+  const mData=isE?loadMorning(topic):null;
+  // 夜モードで朝データがあればそのsceneを使う
+  const activeScene=mData&&mData.scene?mData.scene:scene;
+  const sc=SCENES.find(s=>s.id===activeScene)||SCENES[0];
+  HATS.forEach(h=>{
+    const saved=answers[h.id]||'';
+    const mVal=mData&&mData.ans&&mData.ans[h.id]?mData.ans[h.id]:'';
+    const qs=sc.questions[h.id];
+    const q=isE?(qs?qs.eq:''):(qs?qs.mq:'');
+    const mBlock=isE?`<div class="morning-ref">
+      <div class="mref-lbl">🌅 朝の設計</div>
+      ${mVal?`<div class="mref-txt">${mVal}</div>`:`<div class="mref-none">朝モードで書くとここに表示されます</div>`}
+    </div>`:'';
+    c.innerHTML+=`<div class="hf">
+      <div class="hf-top">
+        <div class="hf-ball" style="background:${h.bg}">${h.e}</div>
+        <div class="hf-meta">
+          <div class="hf-name">${h.name}</div>
+          <div class="hf-sub">${isE?'振り返りの視点':'設計の視点'}</div>
+        </div>
+      </div>
+      ${mBlock}
+      <div class="hf-q">${q}</div>
+      <textarea class="hf-ta" id="ta_${h.id}"
+        placeholder="${isE?'実際はどうだったか':'ここに書いてください'}"
+        oninput="answers['${h.id}']=this.value">${saved}</textarea>
+    </div>`;
+  });
+  // 場面バッジをtopic bannerに表示
+  const sBadge=`<span style="font-size:11px;padding:2px 8px;border-radius:5px;background:${sc.bg};color:${sc.color};border:1px solid ${sc.color};margin-left:8px">${sc.icon}${sc.label}</span>`;
+  document.getElementById('topicBannerText').innerHTML=topic+sBadge;
+}
+
+function finishDrill(){
+  const isM=mode==='morning';
+  if(isM) saveMorning(topic,answers,scene);
+  const mData=!isM?loadMorning(topic):null;
+  // 夜モードでsceneを引き継ぐ
+  if(mData&&mData.scene) scene=mData.scene;
+  let hasGap=false;
+  if(mData&&mData.ans){
+    hasGap=HATS.some(h=>{
+      const mv=mData.ans[h.id]||'';
+      const ev=answers[h.id]||'';
+      return mv.trim()&&ev.trim()&&mv.trim()!==ev.trim();
+    });
+  }
+  saveRecord({id:Date.now().toString(),dateKey:todayKey(),dateLabel:todayLabel(),mode,topic,scene,answers:{...answers},hasGap});
+  show('done');
+  renderDone(mData);
+}
+
+function renderDone(mData){
+  const isM=mode==='morning';
+  const b=document.getElementById('doneBody');
+  let h=`<div style="margin-bottom:12px;font-size:13px;color:var(--ink2)"><span style="font-size:10px;color:var(--ink3);margin-right:6px">テーマ</span>${topic}</div>`;
+
+  if(!isM&&mData){
+    h+=`<div class="result-card fu">
+      <div class="rc-head rc-head-cmp">▸ 朝の設計　vs　夜の振り返り</div>
+      <div class="rc-rows">
+        ${HATS.map(hat=>{
+          const mv=mData.ans&&mData.ans[hat.id]?mData.ans[hat.id]:'';
+          const ev=answers[hat.id]||'';
+          const gap=mv&&ev&&mv.trim()!==ev.trim();
+          return `<div class="cmp-section">
+            <div class="cmp-hat-hd">
+              <div class="rc-ball" style="background:${hat.bg}">${hat.e}</div>
+              <span style="font-size:12px;font-weight:500;color:var(--ink)">${hat.name}</span>
+              ${gap?`<span class="cmp-gap-tag">ズレあり</span>`:''}
+            </div>
+            <div class="cmp-pair">
+              <div class="cmp-half cm">
+                <div class="ch-lbl">🌅 朝</div>
+                <div class="ch-txt ${mv?'':'ch-none'}">${mv||'未記入'}</div>
+              </div>
+              <div class="cmp-half ce">
+                <div class="ch-lbl">🌙 夜</div>
+                <div class="ch-txt ${ev?'':'ch-none'}">${ev||'未記入'}</div>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+    h+=`<div class="memo-block fu"><div class="memo-lbl">▸ ズレで気づいたこと</div><textarea class="memo-ta" placeholder="どの帽子でズレが大きかった？なぜズレた？"></textarea></div>`;
+  } else {
+    h+=`<div class="result-card fu">
+      <div class="rc-head ${isM?'rc-head-m':'rc-head-e'}">▸ ${isM?'今日の設計':'今日の振り返り'}</div>
+      <div class="rc-rows">
+        ${HATS.map(hat=>{
+          const v=answers[hat.id]||'';
+          return `<div class="rc-row">
+            <div class="rc-ball" style="background:${hat.bg}">${hat.e}</div>
+            <div class="rc-content">
+              <div class="rc-hat">${hat.name}</div>
+              <div class="rc-text ${v?'':'rc-empty'}">${v||'（未記入）'}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+    if(isM) h+=`<div class="morning-saved fu">💾 朝の設計を保存しました。<br>夜モードで同じお題を使うと自動で比較されます。<div><button class="btn-to-e" onclick="mode='evening';startDrill(topic,false)">🌙 今夜の振り返りへ →</button></div></div>`;
+  }
+
+  h+=`<div class="memo-block fu"><div class="memo-lbl">▸ 今日の気づき・感想</div><textarea class="memo-ta" placeholder="自由に書いてください"></textarea></div>`;
+  b.innerHTML=h;
+}
+
+function retryDrill(){
+  if(confirm('書き直しますか？書いた内容を保持して戻ります。')){
+    startDrill(topic,true);
+  }
+}
+
+// ===== TALK =====
+let talkPattern = scene;
+
+function goTalk(){
+  talkPattern = scene;
+  show('talk');
+  document.getElementById('talkBack').onclick = ()=>show('done');
+  renderTalk();
+}
+
+function selectTalkPattern(id){
+  talkPattern = id;
+  renderTalk();
+}
+
+function toggleRef(id){
+  const el=document.getElementById(id);
+  const btn=document.getElementById('btn_'+id);
+  if(el.style.display==='none'){
+    el.style.display='block';
+    btn.textContent='▲ 参考セリフを閉じる';
+  } else {
+    el.style.display='none';
+    btn.textContent='▼ 参考セリフを見る（ヒント）';
+  }
+}
+
+function renderTalk(){
+  const b = document.getElementById('talkBody');
+  const sc = SCENES.find(s=>s.id===talkPattern)||SCENES[0];
+
+  // タブ
+  let h = `<div class="talk-pattern-tabs">
+    ${SCENES.map(s=>`
+      <button class="tpt ${s.id===talkPattern?'active':''}"
+        style="${s.id===talkPattern?`background:${s.color};border-color:${s.color}`:''}"
+        onclick="selectTalkPattern('${s.id}')">${s.icon} ${s.label}</button>
+    `).join('')}
+  </div>`;
+
+  // 説明
+  h += `<div class="talk-intro" style="background:${sc.bg};border-color:${sc.color}40;color:${sc.color}">${sc.talkIntro}</div>`;
+
+  // テーマ
+  h += `<div style="margin-bottom:14px;font-size:13px;color:var(--ink2)">
+    <span style="font-size:10px;color:var(--ink3);margin-right:6px">テーマ</span>${topic||'（テーマ未入力）'}
+  </div>`;
+
+  // ステップ（朝の内容＋型のみ）
+  h += `<div style="font-size:10px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;margin-bottom:10px">話す順番と朝の内容</div>`;
+  h += `<div class="talk-steps">`;
+  sc.talkSteps.forEach((step, i) => {
+    const hat = HATS.find(h=>h.id===step.hatId);
+    const content = answers[step.hatId] || '';
+    h += `<div class="ts-item">
+      <div class="ts-head">
+        <div class="ts-step" style="background:${sc.color}">${step.order}</div>
+        <div class="ts-hat-ball" style="background:${hat.bg}">${hat.e}</div>
+        <div class="ts-hat-name">${hat.name}</div>
+      </div>
+      <div class="ts-template">${step.template}</div>
+      <div class="ts-content ${content?'':'ts-empty'}">${content||'（朝のドリルで書いた内容がここに入ります）'}</div>
+    </div>`;
+  });
+  h += `</div>`;
+
+  // 朝の内容をつなげた流れ
+  h += `<div class="talk-script">
+    <div class="tscript-head">▸ つなげるとこうなる　―　語尾を自分らしく変えて声に出す</div>
+    <div style="padding:14px;display:grid;gap:8px;">
+      ${sc.talkSteps.map(step=>{
+        const hat = HATS.find(h=>h.id===step.hatId);
+        const content = answers[step.hatId]||'';
+        return `<div class="tscript-line">
+          <div class="tscript-dot" style="background:${hat.color}"></div>
+          <div class="tscript-txt" style="color:${content?'var(--ink)':'#ccc'}">${content||`（${hat.name}を書くとここに表示）`}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // 折りたたみ参考セリフ
+  const refId='ref_'+talkPattern;
+  h += `<div style="margin-bottom:14px">
+    <button id="btn_${refId}"
+      onclick="toggleRef('${refId}')"
+      style="width:100%;padding:12px 16px;border-radius:10px;
+             border:1.5px dashed ${sc.color}40;
+             background:${sc.bg};color:${sc.color};
+             font-family:'Noto Sans JP',sans-serif;
+             font-size:12px;font-weight:500;cursor:pointer;text-align:left">
+      ▼ 参考セリフを見る（ヒント）
+    </button>
+    <div id="${refId}" style="display:none;margin-top:8px;
+         background:var(--white);border:1px solid var(--border);
+         border-radius:10px;overflow:hidden">
+      <div style="padding:10px 14px;background:${sc.bg};
+           font-size:10px;color:${sc.color};letter-spacing:.08em;border-bottom:1px solid var(--border)">
+        ▸ 参考セリフ例　―　語尾・言い回しは自分らしくカスタムしてください
+      </div>
+      <div style="padding:12px 14px;display:grid;gap:8px">
+        ${sc.talkRef.map((ref,i)=>{
+          const hat=HATS.find(h=>h.id===sc.talkSteps[i].hatId);
+          return `<div style="display:flex;gap:8px;align-items:flex-start">
+            <div style="width:6px;height:6px;border-radius:50%;
+                 background:${hat.color};flex-shrink:0;margin-top:7px"></div>
+            <div style="font-size:12px;color:var(--ink2);line-height:1.7">${ref}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="padding:10px 14px;background:#fffbf0;
+           border-top:1px solid var(--border);
+           font-size:11px;color:#9a6800;line-height:1.7">
+        💡 これはあくまで型です。<br>
+        自分の言葉・語尾に変えて声に出すことで初めて「自分のセリフ」になります。
+      </div>
+    </div>
+  </div>`;
+
+  b.innerHTML = h;
+}
+
+// ===== RECORDS =====
+function goRecords(){
+  show('records');
+  renderRecords();
+}
+
+function renderRecords(){
+  const all=getRecords();
+  const b=document.getElementById('recBody');
+  if(!all.length){
+    b.innerHTML='<div class="hist-empty">まだ記録がありません。<br>朝か夜のドリルを完了すると<br>ここに蓄積されます。</div>';
+    return;
+  }
+
+  // STATS
+  const mCount=all.filter(r=>r.mode==='morning').length;
+  const eCount=all.filter(r=>r.mode==='evening').length;
+  const gapCount=all.filter(r=>r.hasGap).length;
+  let h=`<div class="stats-row">
+    <div class="stat-box"><div class="stat-n">${all.length}</div><div class="stat-l">総記録数</div></div>
+    <div class="stat-box"><div class="stat-n">${mCount}</div><div class="stat-l">朝の設計</div></div>
+    <div class="stat-box"><div class="stat-n">${eCount}</div><div class="stat-l">夜の振り返り</div></div>
+  </div>`;
+
+  // GRAPH
+  const hatStats={};
+  HATS.forEach(h2=>{hatStats[h2.id]={filled:0,total:0};});
+  all.forEach(r=>{HATS.forEach(h2=>{hatStats[h2.id].total++;if(r.answers&&r.answers[h2.id]&&r.answers[h2.id].trim())hatStats[h2.id].filled++;});});
+  const sorted=HATS.map(h2=>({...h2,rate:hatStats[h2.id].total?hatStats[h2.id].filled/hatStats[h2.id].total:0})).sort((a,b)=>b.rate-a.rate);
+  const strong=sorted[0], weak=sorted[sorted.length-1];
+
+  h+=`<div class="graph-card">
+    <div class="graph-ttl">帽子ごとの記入率</div>
+    <div class="graph-sub">書けている帽子＝得意な思考パターン</div>
+    <div class="bar-rows">
+      ${HATS.map(hat=>{
+        const s=hatStats[hat.id];
+        const rate=s.total?Math.round(s.filled/s.total*100):0;
+        return `<div class="bar-row">
+          <div class="bar-hd">
+            <div class="bar-ball" style="background:${hat.bg}">${hat.e}</div>
+            <div class="bar-nm">${hat.name}</div>
+            <div class="bar-cnt">${s.filled}/${s.total}回</div>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${rate}%;background:${hat.color}"></div></div>
+          <div class="bar-tags">
+            ${hat.id===strong.id?`<div class="btag btag-strong">✓ 得意</div>`:''}
+            ${hat.id===weak.id?`<div class="btag btag-weak">△ 苦手</div>`:''}
+            <div class="btag btag-n">${rate}%</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // ADVICE
+  h+=`<div class="advice-card">
+    <div class="adv-lbl">▸ アドバイス</div>
+    <div class="adv-txt">${buildAdvice(strong,weak,gapCount,all.length)}</div>
+  </div>`;
+
+  // HISTORY
+  h+=`<div class="hist-section">
+    <div class="hist-ttl">記録一覧</div>
+    <div class="hist-list">
+      ${all.slice(0,30).map(r=>{
+        const isM=r.mode==='morning';
+        const preview=HATS.slice(0,3).map(hat=>`<div class="hi-pline"><div class="hi-pdot" style="background:${hat.color}"></div><div class="hi-ptxt">${r.answers&&r.answers[hat.id]?r.answers[hat.id]:'—'}</div></div>`).join('');
+        return `<div class="hist-item">
+          <div class="hi-head">
+            <div class="hi-date">${r.dateLabel||''}</div>
+            <div class="hi-topic">${r.topic||''}</div>
+            <div class="hi-mode ${isM?'hi-m':'hi-e'}">${isM?'🌅 朝':'🌙 夜'}</div>
+            ${r.hasGap?`<div class="hi-gap">ズレあり</div>`:''}
+          </div>
+          <div class="hi-preview">${preview}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  b.innerHTML=h;
+}
+
+function buildAdvice(strong,weak,gapCount,total){
+  if(total<3) return '記録が3件以上になると思考パターンの傾向がわかります。まず3回続けてみましょう。';
+  let msg=`${strong.e}${strong.name}がよく書けています。この思考が得意です。\n\n${weak.e}${weak.name}の記入が少ない傾向があります。次はこの帽子を意識して書いてみましょう。`;
+  if(gapCount>0) msg+=`\n\n朝と夜でズレが${gapCount}回記録されています。ズレが多い帽子が「予測と現実のギャップ」を生んでいます。`;
+  return msg;
+}
+
+// ===== INIT =====
+renderHome();
+</script>
+</body>
+</html>
