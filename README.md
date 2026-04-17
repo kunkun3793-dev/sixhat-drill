@@ -1,0 +1,546 @@
+[noryoku-worksheet.html](https://github.com/user-attachments/files/26806268/noryoku-worksheet.html)
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>脳力開発ワークシート</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap');
+
+  :root {
+    --ink: #1a1410;
+    --paper: #f7f4ef;
+    --paper-dark: #ede9e1;
+    --accent: #8b4513;
+    --accent-light: #c4956a;
+    --border: #c8bfb0;
+    --saved: #2d6a4f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* Header */
+  .header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 16px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    opacity: 0.7;
+  }
+  .header-date {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  /* Sheet nav */
+  .sheet-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--paper-dark);
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .sheet-nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--paper);
+    font-size: 11px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .nav-btn.saved-badge::after {
+    content: '✓';
+    margin-left: 4px;
+    color: var(--saved);
+    font-weight: bold;
+  }
+  .nav-btn.active.saved-badge::after { color: #a0ffcc; }
+
+  /* Sheet container */
+  .sheet-container {
+    display: none;
+    padding: 20px 16px;
+    max-width: 640px;
+    margin: 0 auto;
+    animation: fadeIn 0.25s ease;
+  }
+  .sheet-container.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .sheet-number {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .sheet-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* Form fields */
+  .field-group {
+    margin-bottom: 20px;
+  }
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 6px;
+    display: block;
+    letter-spacing: 0.05em;
+  }
+  textarea, input[type="text"], input[type="date"], input[type="time"] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  textarea:focus, input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.7; }
+
+  .date-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .date-row-label {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  /* Table style for sheet 5 */
+  .replace-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+  .replace-table th {
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 11px;
+    padding: 8px;
+    text-align: center;
+  }
+  .replace-table td {
+    border: 1px solid var(--border);
+    padding: 4px;
+  }
+  .replace-table td input {
+    border: none;
+    padding: 6px 8px;
+    font-size: 13px;
+    width: 100%;
+    background: transparent;
+  }
+  .replace-table tr:nth-child(odd) td { background: white; }
+  .replace-table tr:nth-child(even) td { background: var(--paper); }
+
+  /* Save button */
+  .save-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 24px;
+    letter-spacing: 0.1em;
+    transition: background 0.2s;
+  }
+  .save-btn:active { background: #6b3410; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--saved);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 40px;
+    font-size: 13px;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* History */
+  .history-section {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  .history-title {
+    font-size: 12px;
+    color: #888;
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .history-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .history-date {
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .history-preview {
+    font-size: 12px;
+    color: #555;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .no-history {
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    padding: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">脳力開発ワークシート</div>
+  <div class="header-date" id="todayDate"></div>
+</div>
+
+<div class="sheet-nav" id="sheetNav"></div>
+
+<!-- Sheet 1 -->
+<div class="sheet-container active" id="sheet-1">
+  <div class="sheet-number">SHEET 01</div>
+  <div class="sheet-title">社会的成功の具体的<br>長期（最終）目標設定</div>
+
+  <div class="field-group">
+    <label class="field-label">■ 私がチャレンジし続ける長期目標は</label>
+    <textarea id="s1_goal" rows="4" placeholder="自由に記入してください"></textarea>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">■ 達成年月日・時間・場所</label>
+    <div class="date-row">
+      <div><div class="date-row-label">年</div><input type="text" id="s1_year" placeholder="例：2028"></div>
+      <div><div class="date-row-label">月日</div><input type="text" id="s1_date" placeholder="例：3月15日"></div>
+      <div><div class="date-row-label">場所</div><input type="text" id="s1_place" placeholder="例：東京"></div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">■ 私が長期目標を達成する目的は</label>
+    <textarea id="s1_purpose" rows="3" placeholder="目的を記入"></textarea>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">■ 達成すると、自分以外の誰の為になるか？どのような好影響を与えられるか？</label>
+    <textarea id="s1_impact" rows="3" placeholder="記入してください"></textarea>
+  </div>
+
+  <div class="field-group">
+    <label class="field-label">■ 長期目標を達成することによって、自分自身にどのような好影響が与えられるか？</label>
+    <textarea id="s1_self_impact" rows="3" placeholder="記入してください"></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveSheet(1)">この内容を保存する</button>
+
+  <div class="history-section">
+    <div class="history-title">▼ 過去の記録</div>
+    <div id="history-1"></div>
+  </div>
+</div>
+
+<!-- Sheet 5 -->
+<div class="sheet-container" id="sheet-5">
+  <div class="sheet-number">SHEET 05</div>
+  <div class="sheet-title">マイナス言葉から<br>プラス言葉への置き換え</div>
+
+  <table class="replace-table">
+    <thead>
+      <tr>
+        <th>■ マイナス感情が条件付けられている言葉</th>
+        <th>■ プラス感情が条件付けられている言葉</th>
+      </tr>
+    </thead>
+    <tbody id="replaceRows">
+    </tbody>
+  </table>
+
+  <button class="save-btn" onclick="saveSheet(5)">この内容を保存する</button>
+  <div class="history-section">
+    <div class="history-title">▼ 過去の記録</div>
+    <div id="history-5"></div>
+  </div>
+</div>
+
+<!-- Sheet 6 -->
+<div class="sheet-container" id="sheet-6">
+  <div class="sheet-number">SHEET 06</div>
+  <div class="sheet-title">サイキングアップ＆<br>カームダウンの言葉</div>
+
+  <div class="field-group">
+    <label class="field-label">① 弱気になった自分に、語りかけたい決意は</label>
+    <textarea id="s6_up" rows="4" placeholder="強気になる決意を記入"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">■ 強気になる決意をキーワードにすると</label>
+    <input type="text" id="s6_up_key" placeholder="キーワード">
+  </div>
+
+  <div class="field-group" style="margin-top:20px">
+    <label class="field-label">② 図に乗った自分に、語りかけたい決意は</label>
+    <textarea id="s6_down" rows="4" placeholder="冷静になる決意を記入"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">■ 冷静になる決意をキーワードにすると</label>
+    <input type="text" id="s6_down_key" placeholder="キーワード">
+  </div>
+
+  <button class="save-btn" onclick="saveSheet(6)">この内容を保存する</button>
+  <div class="history-section">
+    <div class="history-title">▼ 過去の記録</div>
+    <div id="history-6"></div>
+  </div>
+</div>
+
+<!-- Sheet 8 -->
+<div class="sheet-container" id="sheet-8">
+  <div class="sheet-number">SHEET 08</div>
+  <div class="sheet-title">ピグマリオン<br>ミーティングの言葉</div>
+
+  <div class="field-group">
+    <label class="field-label">■ 強さと自信の言葉</label>
+    <textarea id="s8_strong" rows="3" placeholder="記入してください"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">■ 愛情と優しさの言葉</label>
+    <textarea id="s8_love" rows="3" placeholder="記入してください"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">■ 感謝と運とツキの言葉</label>
+    <textarea id="s8_thanks" rows="3" placeholder="記入してください"></textarea>
+  </div>
+  <div class="field-group">
+    <label class="field-label">② 私は __ で、__ で、__ だ。（毎日自分に語りかける）</label>
+    <textarea id="s8_daily" rows="3" placeholder="私は　　　で、　　　で、　　　だ。"></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveSheet(8)">この内容を保存する</button>
+  <div class="history-section">
+    <div class="history-title">▼ 過去の記録</div>
+    <div id="history-8"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ 保存しました</div>
+
+<script>
+// シート定義
+const sheets = [
+  { id: 1, label: 'シート1' },
+  { id: 5, label: 'シート5' },
+  { id: 6, label: 'シート6' },
+  { id: 8, label: 'シート8' },
+];
+
+// 今日の日付
+const today = new Date();
+document.getElementById('todayDate').textContent =
+  `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()}`;
+
+// ナビ生成
+const nav = document.getElementById('sheetNav');
+sheets.forEach(s => {
+  const btn = document.createElement('button');
+  btn.className = 'nav-btn';
+  btn.textContent = s.label;
+  btn.id = `nav-${s.id}`;
+  if (s.id === 1) btn.classList.add('active');
+  btn.onclick = () => switchSheet(s.id);
+  // 保存済みバッジ
+  const saved = localStorage.getItem(`sheet_${s.id}_latest`);
+  if (saved) btn.classList.add('saved-badge');
+  nav.appendChild(btn);
+});
+
+function switchSheet(id) {
+  document.querySelectorAll('.sheet-container').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(`sheet-${id}`).classList.add('active');
+  document.getElementById(`nav-${id}`).classList.add('active');
+  loadHistory(id);
+}
+
+// Sheet 5 テーブル初期化
+const examples = [
+  ['例：会社（学校）に行く', '世の中で一番面白い場所に行く'],
+  ['例：勉強（仕事）をする', '今日も徹底的に楽しもう'],
+  ['例：面倒な仕事をする', '自分の能力をアップするチャンス'],
+  ['例：頑固な取引先（お客様）', '自分を鍛えてくれる魅力的な人'],
+  ['例：ケチな友人・知人', '自己管理のできる優秀な人'],
+  ['', ''], ['', ''], ['', ''], ['', ''], ['', ''],
+];
+const tbody = document.getElementById('replaceRows');
+examples.forEach((row, i) => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" id="s5_minus_${i}" placeholder="${row[0]}"></td>
+    <td><input type="text" id="s5_plus_${i}" placeholder="${row[1]}"></td>
+  `;
+  tbody.appendChild(tr);
+});
+
+// 保存
+function saveSheet(id) {
+  const dateStr = today.toLocaleDateString('ja-JP');
+  let data = {};
+
+  if (id === 1) {
+    data = {
+      goal: document.getElementById('s1_goal').value,
+      year: document.getElementById('s1_year').value,
+      date: document.getElementById('s1_date').value,
+      place: document.getElementById('s1_place').value,
+      purpose: document.getElementById('s1_purpose').value,
+      impact: document.getElementById('s1_impact').value,
+      self_impact: document.getElementById('s1_self_impact').value,
+    };
+  } else if (id === 5) {
+    const rows = [];
+    for (let i = 0; i < 10; i++) {
+      const m = document.getElementById(`s5_minus_${i}`)?.value || '';
+      const p = document.getElementById(`s5_plus_${i}`)?.value || '';
+      if (m || p) rows.push({ minus: m, plus: p });
+    }
+    data = { rows };
+  } else if (id === 6) {
+    data = {
+      up: document.getElementById('s6_up').value,
+      up_key: document.getElementById('s6_up_key').value,
+      down: document.getElementById('s6_down').value,
+      down_key: document.getElementById('s6_down_key').value,
+    };
+  } else if (id === 8) {
+    data = {
+      strong: document.getElementById('s8_strong').value,
+      love: document.getElementById('s8_love').value,
+      thanks: document.getElementById('s8_thanks').value,
+      daily: document.getElementById('s8_daily').value,
+    };
+  }
+
+  const entry = { date: dateStr, data };
+  const key = `sheet_${id}_history`;
+  const history = JSON.parse(localStorage.getItem(key) || '[]');
+  history.unshift(entry);
+  localStorage.setItem(key, JSON.stringify(history.slice(0, 30)));
+  localStorage.setItem(`sheet_${id}_latest`, dateStr);
+
+  document.getElementById(`nav-${id}`).classList.add('saved-badge');
+  showToast();
+  loadHistory(id);
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function loadHistory(id) {
+  const key = `sheet_${id}_history`;
+  const history = JSON.parse(localStorage.getItem(key) || '[]');
+  const el = document.getElementById(`history-${id}`);
+  if (!el) return;
+  if (history.length === 0) {
+    el.innerHTML = '<div class="no-history">まだ記録がありません</div>';
+    return;
+  }
+  el.innerHTML = history.slice(0, 5).map(h => {
+    const preview = getPreview(id, h.data);
+    return `<div class="history-item">
+      <div class="history-date">${h.date}</div>
+      <div class="history-preview">${preview}</div>
+    </div>`;
+  }).join('');
+}
+
+function getPreview(id, data) {
+  if (id === 1) return data.goal || '（未記入）';
+  if (id === 5) return data.rows?.map(r => `${r.minus} → ${r.plus}`).slice(0,2).join(' / ') || '（未記入）';
+  if (id === 6) return data.up_key ? `UP：${data.up_key}  DOWN：${data.down_key}` : '（未記入）';
+  if (id === 8) return data.daily || '（未記入）';
+  return '';
+}
+
+// 初期ロード
+loadHistory(1);
+</script>
+</body>
+</html>
